@@ -1,0 +1,293 @@
+#include <iostream>
+
+#include <dos.h>
+
+#include <conio.h>
+
+#include <windows.h>
+
+using namespace std;
+
+bool gameOver;//gameover
+
+const int width = 50;//border width
+
+const int height = 20;//border height
+
+int x, y, fruitX, fruitY, score;
+
+int tailX[100], tailY[100];
+int nTail;
+
+enum eDirecton { STOP = 0, LEFT, RIGHT, UP, DOWN};//CONNECTED TO (_switch getch())
+
+eDirecton dir;//used with enum eDirection for movement of object
+
+void Setup()
+
+{
+gameOver = false;//GAMEOVER FALSE CONDITION
+dir = STOP;
+
+x = width /2;//WHERE THE SNAKE WILL POSITION WHEN IT BEGINS
+
+y = height /6;/*Where the snake will position itself on beginning*/ 
+
+
+fruitX = rand() % width;//THE FRUIT
+
+fruitY = rand() % height;//THE FRUIT
+
+score = 0;//SCORE INITIALIZATION
+
+}
+
+void Draw()
+{
+
+
+system("cls"); //Makes the screen less shaky
+
+
+for (int i = 8; i < width+10; i++) /*i starts here.it indicates the top border how long it will be. the continuation condition also affects its elements mainly.*/
+
+cout << "~";//drawing on top border
+
+cout << endl;
+
+for (int i = 0;i < height; i++)//height of map
+
+{
+for (int j = 0; j < width; j++)//The j=0 pushes the height lines of the map to the left as you increase it
+{
+
+if (j == 0)//if increased the height lines go to the right
+
+cout << "|";//changes the left height line
+
+if (i == y && j == x)//which means it is the snake
+cout << "o";//changes the original o look of the snake
+
+else if (i == fruitY && j == fruitX)/*makes what will be eaten. IF changed there is nothing to eat.*/
+
+cout << "O";//changes the appearance of what will be eaten
+
+else
+
+{
+
+bool print = false;//if changed will disfigure the map
+
+for (int k = 0; k < nTail; k++)/*Increasing the initialization makes it not increase in size. ntail is showing that it doesnt have a maximum. increasing it makes the original snake two o and it shows the total at the left top.*/
+
+{
+
+if (tailX[k] == i && tailY[k] == j)//
+
+{
+
+cout << "o";//this is the snake body increase
+
+print = true;
+
+}
+
+}
+
+if (!print)//If not gotten the fruit then you got nothing
+
+cout << " ";
+
+}
+
+if (j == width - 1)//changes the right height of map
+
+cout << "#";
+
+}
+
+cout << endl;
+
+}
+
+for (int i = 0; i < width+10; i++)//changes the bottom width of map
+
+cout << "#";
+
+cout << endl;
+
+cout << "Score:" << score << endl;//the bottom writings are placed
+
+cout << "Made by Alloise Kibe";
+
+cout << endl;
+
+cout << "use W,A,S,D to control movement of the snake";
+
+}
+
+void Input()
+{
+
+if (_kbhit())//kbhit is used to determine if a key has been pressed or not and is used with conio.h
+
+{
+
+switch (_getch())//assigning buttons with help of enum eDirection
+
+{
+
+case 'A':
+
+dir = LEFT;
+
+break;
+
+case 'D':
+
+dir = RIGHT;
+
+break;
+
+case 'W':
+
+dir = UP;
+
+break;
+
+case 'S':
+
+dir = DOWN;
+
+break;
+
+case 'X'://X terminates the game
+
+gameOver = true;
+
+break;
+
+}
+
+}
+
+}
+
+void Logic()
+{
+
+int prevX = tailY[0];//I include another snake competitor
+
+int prevY = tailY[0];
+
+int prev2X, prev2Y;
+
+tailX[0] = x;//Change number and it starts making another snake in the top part grow and grow and can be hit and doesnt do anything but when there is a fruit in the top right it cant be gotten
+
+tailY[0] = y;
+
+for (int i = 1; i < nTail; i++)
+
+{
+
+prev2X = tailX[i];
+
+prev2Y = tailY[i];
+
+tailX[i] = prevX;
+
+tailY[i] = prevY;
+
+prevX = prev2X;
+
+prevY = prev2Y;
+
+}
+
+switch (dir)
+
+{
+
+case LEFT:
+
+x--;
+
+break;
+
+case RIGHT:
+
+x++;
+
+break;
+
+case UP://Changing it to down changes button direction
+
+y--;
+
+break;
+
+case DOWN:
+
+y++;
+
+break;
+
+default:
+
+break;
+
+}
+
+//if (x > width || x < 0 || y > height || y < 0)
+
+// gameOver = true;
+
+if (x >= width) x = 0; else if (x < 0) x = width - 1;
+
+if (y >= height) y = 0; else if (y < 0) y = height - 1;
+
+for (int i = 0; i < nTail; i++)
+
+if (tailX[i] == x && tailY[i] == y)
+
+gameOver = true;
+
+if (x == fruitX && y == fruitY)//IF fruits are switched, then fruit is seen but not eaten and original snake is seen but not increasing
+
+{
+
+score += 10;//addition of every fruit intake brings 10 more to the score
+
+fruitX = rand() % width;
+
+fruitY = rand() % height;
+
+nTail++;
+
+}
+
+}
+
+int main()
+{
+
+
+	
+Setup();
+
+while (!gameOver)
+
+{
+
+Draw();
+
+Input();
+
+Logic();
+
+Sleep(10); //sleep(60); //The lower the number, the faster the speed;
+}
+return 0;
+
+
+}
